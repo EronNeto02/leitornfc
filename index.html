@@ -1,27 +1,42 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-    <title>Leitor NFC</title>
+    <title>Leitor NFC - UID</title>
 
     <style>
         body{
-            font-family: Arial;
+            font-family:Arial;
             text-align:center;
             margin-top:80px;
+            background:#f5f5f5;
+        }
+
+        h1{
+            color:#333;
         }
 
         button{
-            font-size:20px;
             padding:15px 30px;
+            font-size:20px;
+            cursor:pointer;
         }
 
-        #resultado{
-            margin-top:30px;
-            font-size:22px;
-            color:blue;
+        #status{
+            margin-top:25px;
+            font-size:20px;
         }
+
+        #uid{
+            margin-top:20px;
+            font-size:30px;
+            color:blue;
+            font-weight:bold;
+        }
+
     </style>
+
 </head>
 
 <body>
@@ -29,11 +44,15 @@
 <h1>Leitor NFC</h1>
 
 <button onclick="lerNFC()">
-    Ler Tag NFC
+Ler Tag
 </button>
 
-<div id="resultado">
-    Aguardando...
+<div id="status">
+Aguardando...
+</div>
+
+<div id="uid">
+
 </div>
 
 <script>
@@ -41,7 +60,7 @@
 async function lerNFC(){
 
     if(!("NDEFReader" in window)){
-        alert("Este navegador não suporta Web NFC.");
+        alert("Seu navegador não suporta Web NFC.");
         return;
     }
 
@@ -51,36 +70,24 @@ async function lerNFC(){
 
         await ndef.scan();
 
-        document.getElementById("resultado").innerHTML =
-            "Aproxime a tag...";
+        document.getElementById("status").innerHTML =
+            "Aproxime a Tag NFC...";
 
-        ndef.onreading = event => {
+        ndef.onreading = (event)=>{
 
-            let texto = "";
+            document.getElementById("status").innerHTML =
+                "Tag encontrada!";
 
-            for(const record of event.message.records){
-
-                if(record.recordType === "text"){
-
-                    const decoder = new TextDecoder(record.encoding);
-                    texto += decoder.decode(record.data);
-
-                }else{
-
-                    texto += "Tipo: " + record.recordType;
-
-                }
-
-            }
-
-            document.getElementById("resultado").innerHTML =
-                texto;
+            document.getElementById("uid").innerHTML =
+                event.serialNumber;
 
         };
 
-    }catch(err){
+    }
+    catch(error){
 
-        alert(err);
+        document.getElementById("status").innerHTML =
+            error;
 
     }
 
@@ -89,4 +96,5 @@ async function lerNFC(){
 </script>
 
 </body>
+
 </html>
