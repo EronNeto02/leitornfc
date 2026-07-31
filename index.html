@@ -2,40 +2,82 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <title>Leitor NFC - UID</title>
 
-    <style>
-        body{
-            font-family:Arial;
-            text-align:center;
-            margin-top:80px;
-            background:#f5f5f5;
-        }
+<meta charset="UTF-8">
 
-        h1{
-            color:#333;
-        }
+<title>Leitor NFC - BlueBoat</title>
 
-        button{
-            padding:15px 30px;
-            font-size:20px;
-            cursor:pointer;
-        }
+<style>
 
-        #status{
-            margin-top:25px;
-            font-size:20px;
-        }
+body{
 
-        #uid{
-            margin-top:20px;
-            font-size:30px;
-            color:blue;
-            font-weight:bold;
-        }
+    font-family:Arial;
+    background:#f5f5f5;
+    text-align:center;
+    margin-top:60px;
 
-    </style>
+}
+
+h1{
+
+    color:#003366;
+
+}
+
+button{
+
+    padding:15px 35px;
+    font-size:20px;
+    cursor:pointer;
+    border:none;
+    border-radius:8px;
+    background:#003366;
+    color:white;
+
+}
+
+button:hover{
+
+    background:#0055aa;
+
+}
+
+#status{
+
+    margin-top:30px;
+    font-size:22px;
+
+}
+
+#uid{
+
+    margin-top:20px;
+    font-size:26px;
+    color:#0066cc;
+    font-weight:bold;
+
+}
+
+#equipamento{
+
+    margin-top:30px;
+    width:500px;
+    margin-left:auto;
+    margin-right:auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0px 0px 10px rgba(0,0,0,.15);
+
+}
+
+#equipamento h2{
+
+    color:#003366;
+
+}
+
+</style>
 
 </head>
 
@@ -44,24 +86,69 @@
 <h1>Leitor NFC</h1>
 
 <button onclick="lerNFC()">
-Ler Tag
+Ler Tag NFC
 </button>
 
 <div id="status">
-Aguardando...
+Clique no botão para iniciar.
 </div>
 
 <div id="uid">
 
 </div>
 
+<div id="equipamento">
+
+    Aguardando leitura...
+
+</div>
+
 <script>
+
+/////////////////////////////////////////////////////////////////
+// BANCO DE DADOS LOCAL
+/////////////////////////////////////////////////////////////////
+
+const equipamentos = {
+
+    "53:5d:f5:74:b5:00:01":{
+
+        codigo:"PRD-000001",
+
+        nome:"G16S",
+
+        fabricante:"Parker",
+
+        descricao:"Conexão União de Tubo 16mm"
+
+    },
+
+    "04:a8:f2:13:9a:5c:80":{
+
+        codigo:"PRD-000002",
+
+        nome:"Trena",
+
+        fabricante:"Starrett",
+
+        descricao:"Trena com trava de 5 metros"
+
+    }
+
+};
+
+/////////////////////////////////////////////////////////////////
+// LEITOR NFC
+/////////////////////////////////////////////////////////////////
 
 async function lerNFC(){
 
     if(!("NDEFReader" in window)){
-        alert("Seu navegador não suporta Web NFC.");
+
+        alert("Este navegador não suporta Web NFC.");
+
         return;
+
     }
 
     try{
@@ -71,23 +158,54 @@ async function lerNFC(){
         await ndef.scan();
 
         document.getElementById("status").innerHTML =
-            "Aproxime a Tag NFC...";
+        "Aproxime a Tag NFC...";
 
         ndef.onreading = (event)=>{
 
-            document.getElementById("status").innerHTML =
-                "Tag encontrada!";
+            const uid = event.serialNumber.toLowerCase();
 
             document.getElementById("uid").innerHTML =
-                event.serialNumber;
+            "<strong>UID:</strong><br>"+uid;
+
+            if(equipamentos[uid]){
+
+                const item = equipamentos[uid];
+
+                document.getElementById("status").innerHTML =
+                "✅ Equipamento identificado";
+
+                document.getElementById("equipamento").innerHTML =
+
+                "<h2>"+item.nome+"</h2>" +
+
+                "<p><b>Código:</b> "+item.codigo+"</p>" +
+
+                "<p><b>Fabricante:</b> "+item.fabricante+"</p>" +
+
+                "<p><b>Descrição:</b> "+item.descricao+"</p>";
+
+            }
+
+            else{
+
+                document.getElementById("status").innerHTML =
+                "❌ Equipamento não cadastrado.";
+
+                document.getElementById("equipamento").innerHTML =
+
+                "<h2>Nenhum cadastro encontrado</h2>" +
+
+                "<p>Cadastre este UID no sistema.</p>";
+
+            }
 
         };
 
     }
+
     catch(error){
 
-        document.getElementById("status").innerHTML =
-            error;
+        document.getElementById("status").innerHTML = error;
 
     }
 
