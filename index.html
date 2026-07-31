@@ -32,5 +32,61 @@
     Ler Tag NFC
 </button>
 
+<div id="resultado">
+    Aguardando...
+</div>
+
+<script>
+
+async function lerNFC(){
+
+    if(!("NDEFReader" in window)){
+        alert("Este navegador não suporta Web NFC.");
+        return;
+    }
+
+    try{
+
+        const ndef = new NDEFReader();
+
+        await ndef.scan();
+
+        document.getElementById("resultado").innerHTML =
+            "Aproxime a tag...";
+
+        ndef.onreading = event => {
+
+            let texto = "";
+
+            for(const record of event.message.records){
+
+                if(record.recordType === "text"){
+
+                    const decoder = new TextDecoder(record.encoding);
+                    texto += decoder.decode(record.data);
+
+                }else{
+
+                    texto += "Tipo: " + record.recordType;
+
+                }
+
+            }
+
+            document.getElementById("resultado").innerHTML =
+                texto;
+
+        };
+
+    }catch(err){
+
+        alert(err);
+
+    }
+
+}
+
+</script>
+
 </body>
 </html>
