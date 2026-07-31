@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Leitor NFC</title>
+
+    <style>
+        body{
+            font-family: Arial;
+            text-align:center;
+            margin-top:80px;
+        }
+
+        button{
+            font-size:20px;
+            padding:15px 30px;
+        }
+
+        #resultado{
+            margin-top:30px;
+            font-size:22px;
+            color:blue;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>Leitor NFC</h1>
+
+<button onclick="lerNFC()">
+    Ler Tag NFC
+</button>
+
+<div id="resultado">
+    Aguardando...
+</div>
+
+<script>
+
+async function lerNFC(){
+
+    if(!("NDEFReader" in window)){
+        alert("Este navegador não suporta Web NFC.");
+        return;
+    }
+
+    try{
+
+        const ndef = new NDEFReader();
+
+        await ndef.scan();
+
+        document.getElementById("resultado").innerHTML =
+            "Aproxime a tag...";
+
+        ndef.onreading = event => {
+
+            let texto = "";
+
+            for(const record of event.message.records){
+
+                if(record.recordType === "text"){
+
+                    const decoder = new TextDecoder(record.encoding);
+                    texto += decoder.decode(record.data);
+
+                }else{
+
+                    texto += "Tipo: " + record.recordType;
+
+                }
+
+            }
+
+            document.getElementById("resultado").innerHTML =
+                texto;
+
+        };
+
+    }catch(err){
+
+        alert(err);
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
